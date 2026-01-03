@@ -1,0 +1,36 @@
+async function loadClips() {
+    const grid = document.getElementById('video-grid');
+    try {
+        // This fetches the "clips.json" file that your bot creates
+        const response = await fetch('clips.json');
+        
+        // If the bot hasn't run yet, the file won't exist
+        if (!response.ok) throw new Error('File not found');
+        
+        const data = await response.json();
+        grid.innerHTML = ''; // Clear the loading message
+
+        data.items.forEach(item => {
+            const videoId = item.id.videoId;
+            const title = item.snippet.title;
+            const thumb = item.snippet.thumbnails.high.url;
+            
+            grid.innerHTML += `
+                <div class="video-card bg-slate-800 rounded-lg overflow-hidden border border-slate-700 shadow-lg">
+                    <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank">
+                        <img src="${thumb}" class="w-full h-48 object-cover" alt="Thumbnail">
+                        <div class="p-4">
+                            <p class="text-sm font-bold line-clamp-2">${title}</p>
+                            <p class="text-xs text-blue-400 mt-2 font-mono uppercase">Live Update</p>
+                        </div>
+                    </a>
+                </div>`;
+        });
+    } catch (e) {
+        grid.innerHTML = `<p class="col-span-full text-center text-slate-500 py-20">
+            Waiting for the first automated update... <br>
+            (Go to the 'Actions' tab and run the workflow manually to start it now!)
+        </p>`;
+    }
+}
+loadClips();

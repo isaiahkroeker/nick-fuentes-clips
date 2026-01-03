@@ -1,0 +1,27 @@
+name: Update YouTube Clips
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs every day at midnight
+  workflow_dispatch: # Allows you to run it manually
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Fetch Latest Clips
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+        run: |
+          # This script searches for raw clips and updates a data file
+          curl "https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=Nick+Fuentes+clips+raw&type=video&order=date&key=$YOUTUBE_API_KEY" > clips.json
+
+      - name: Commit and Push
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git add clips.json
+          git commit -m "Automated update of latest clips" || exit 0
+          git push

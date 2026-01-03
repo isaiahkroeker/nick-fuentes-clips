@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nick Fuentes Clips - Live</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0f172a; color: white; }
+        .video-card:hover { transform: translateY(-5px); transition: 0.3s; }
+    </style>
+</head>
+<body class="font-sans">
+
+    <header class="sticky top-0 z-50 bg-slate-900 border-b border-slate-800 py-8 mb-10">
+        <h1 class="text-4xl md:text-6xl font-black text-center tracking-tighter uppercase">
+            NICK FUENTES CLIPS
+        </h1>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 pb-20">
+        <div id="video-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <p class="text-center col-span-full text-slate-400">Loading latest clips...</p>
+        </div>
+    </main>
+
+    <script>
+        // REPLACE 'YOUR_API_KEY' WITH YOUR ACTUAL KEY FROM GOOGLE CLOUD
+        const API_KEY = 'YOUR_API_KEY'; 
+        const SEARCH_QUERY = 'Nick Fuentes raw clips';
+
+        async function fetchClips() {
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=${encodeURIComponent(SEARCH_QUERY)}&type=video&order=date&key=${API_KEY}`;
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                const grid = document.getElementById('video-grid');
+                grid.innerHTML = ''; // Clear loading text
+
+                data.items.forEach(item => {
+                    const videoId = item.id.videoId;
+                    const title = item.snippet.title;
+                    const thumb = item.snippet.thumbnails.high.url;
+
+                    const card = `
+                        <div class="video-card bg-slate-800 rounded-lg overflow-hidden shadow-lg border border-slate-700">
+                            <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank">
+                                <img src="${thumb}" alt="${title}" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <p class="text-sm font-bold line-clamp-2">${title}</p>
+                                    <p class="text-xs text-slate-400 mt-2">Live Upload</p>
+                                </div>
+                            </a>
+                        </div>
+                    `;
+                    grid.innerHTML += card;
+                });
+            } catch (error) {
+                console.error("Error fetching YouTube data:", error);
+            }
+        }
+
+        fetchClips();
+    </script>
+</body>
+</html>
